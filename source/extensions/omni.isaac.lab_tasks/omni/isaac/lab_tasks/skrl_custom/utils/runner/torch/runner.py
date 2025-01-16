@@ -12,7 +12,8 @@ from skrl.multi_agents.torch.ippo import IPPO, IPPO_DEFAULT_CONFIG
 from skrl.multi_agents.torch.mappo import MAPPO, MAPPO_DEFAULT_CONFIG
 from skrl.resources.preprocessors.torch import RunningStandardScaler  # noqa
 from skrl.resources.schedulers.torch import KLAdaptiveLR  # noqa
-from skrl.trainers.torch import SequentialTrainer, Trainer
+from skrl.trainers.torch import Trainer
+from omni.isaac.lab_tasks.skrl_custom.trainers.torch.sequential import SequentialTrainer
 from skrl.utils import set_seed
 from skrl.utils.model_instantiators.torch import deterministic_model, gaussian_model, shared_model
 

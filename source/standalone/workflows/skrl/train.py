@@ -66,23 +66,10 @@ import os
 import random
 from datetime import datetime
 
-import skrl
 from packaging import version
 
-# check for minimum supported skrl version
-SKRL_VERSION = "1.3.0"
-if version.parse(skrl.__version__) < version.parse(SKRL_VERSION):
-    skrl.logger.error(
-        f"Unsupported skrl version: {skrl.__version__}. "
-        f"Install supported version using 'pip install skrl>={SKRL_VERSION}'"
-    )
-    exit()
 
-if args_cli.ml_framework.startswith("torch"):
-    from omni.isaac.lab_tasks.skrl_custom.utils.runner.torch import Runner
-elif args_cli.ml_framework.startswith("jax"):
-    from omni.isaac.lab_tasks.skrl_custom.utils.runner.jax import Runner
-
+from omni.isaac.lab_tasks.skrl_custom.utils.runner.torch.runner import Runner as CustomRunner
 from omni.isaac.lab.envs import (
     DirectMARLEnv,
     DirectMARLEnvCfg,
@@ -173,7 +160,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # configure and instantiate the skrl runner
     # https://skrl.readthedocs.io/en/latest/api/utils/runner.html
-    runner = Runner(env, agent_cfg)
+    runner = CustomRunner(env, agent_cfg)
 
     # run training
     runner.run()

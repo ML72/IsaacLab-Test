@@ -6,7 +6,7 @@ import tqdm
 
 import torch
 
-from skrl.agents.torch import Agent
+from omni.isaac.lab_tasks.skrl_custom.agents.torch.base import Agent
 from skrl.envs.wrappers.torch import Wrapper
 from skrl.trainers.torch import Trainer
 
@@ -100,6 +100,7 @@ class SequentialTrainer(Trainer):
 
                 # step the environments
                 next_states, rewards, terminated, truncated, infos = self.env.step(actions)
+                # TODO EXTRACT THIS OUT
 
                 # render scene
                 if not self.headless:
