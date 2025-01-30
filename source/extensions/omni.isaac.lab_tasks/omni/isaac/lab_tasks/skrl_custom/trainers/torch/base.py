@@ -10,6 +10,9 @@ from skrl import config, logger
 from skrl.agents.torch import Agent
 from skrl.envs.wrappers.torch import Wrapper
 
+# Custom adversary network
+from omni.isaac.lab_tasks.utils.nets.config_adversary import LinearNetwork
+
 
 def generate_equally_spaced_scopes(num_envs: int, num_simultaneous_agents: int) -> List[int]:
     """Generate a list of equally spaced scopes for the agents
@@ -66,6 +69,11 @@ class Trainer:
         # setup agents
         self.num_simultaneous_agents = 0
         self._setup_agents()
+
+        # setup adversary
+        num_inputs = 12 # arbitrary number of inputs
+        num_clutter_objects = 6
+        self.adversary = LinearNetwork(num_inputs, 64, 64, num_clutter_objects)
 
         # register environment closing if configured
         if self.close_environment_at_exit:
@@ -206,17 +214,22 @@ class Trainer:
             self.agents.post_interaction(timestep=timestep, timesteps=self.timesteps)
 
             # reset environments
+            # for now only do this for single environemnt
             if self.env.num_envs > 1:
                 states = next_states
             else:
-                if terminated.any() or truncated.any():
+                if timestep == 0 or terminated.any() or truncated.any():
                     with torch.no_grad():
                         states, infos = self.env.reset() # states is just observation, not full sim state
                         curr_state = self.env.scene.get_state(False) # curr_state is full sim state
+                        positions = self.adversary.sample().numpy()
                         num_clutter_objects = 6
                         for i in range(num_clutter_objects):
                             pose = curr_state["rigid_object"][f"clutter_object{i+1}"]['root_pose']
-                            pose[:, :3] = torch.tensor([0.5, 0, i/3]).to(pose.device) # just demo with height set to i/3 - spawn with z-stacked pos
+                            val1 = positions[i*3] * 0.1
+                            val2 = positions[i*3+1] * 0.2
+                            val3 = positions[i*3+2] * 0.025 + 0.15
+                            pose[:, :3] += torch.tensor([val1, val2, val3]).to(pose.device)
                         self.env.reset_to(curr_state, None)
                 else:
                     states = next_states

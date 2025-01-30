@@ -658,6 +658,11 @@ def reset_root_state_uniform(
     # get default root state
     root_states = asset.data.default_root_state[env_ids].clone()
 
+    # temporarily initialize all x y z ranges to 0
+    pose_range["x"] = (0.0, 0.0)
+    pose_range["y"] = (0.0, 0.0)
+    pose_range["z"] = (0.0, 0.0)
+
     # poses
     range_list = [pose_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
     ranges = torch.tensor(range_list, device=asset.device)

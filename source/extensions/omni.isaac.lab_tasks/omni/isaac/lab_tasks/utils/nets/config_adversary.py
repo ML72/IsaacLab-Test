@@ -5,6 +5,7 @@ import torch.nn.functional as F
 class LinearNetwork(nn.Module):
     def __init__(self, input_dim, hidden_dim1, hidden_dim2, num_positions=6):
         super().__init__()
+        self.input_dim = input_dim
         self.fc1 = nn.Linear(input_dim, hidden_dim1)
         self.fc2 = nn.Linear(hidden_dim1, hidden_dim2)
         self.fc3 = nn.Linear(hidden_dim2, num_positions * 3)
@@ -16,5 +17,10 @@ class LinearNetwork(nn.Module):
 
         # Clamp output
         x = torch.clamp(x, -1, 1)
+        assert all(x >= -1) and all(x <= 1), f"Output not clamped: {x}"
 
         return x
+    
+    def sample(self):
+        input = torch.randn(size=(self.input_dim,))
+        return self.forward(input)

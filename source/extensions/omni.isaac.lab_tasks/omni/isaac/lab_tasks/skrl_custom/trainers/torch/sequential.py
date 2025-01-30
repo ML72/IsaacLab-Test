@@ -8,7 +8,7 @@ import torch
 
 from omni.isaac.lab_tasks.skrl_custom.agents.torch.base import Agent
 from skrl.envs.wrappers.torch import Wrapper
-from skrl.trainers.torch import Trainer
+from omni.isaac.lab_tasks.skrl_custom.trainers.torch.base import Trainer
 
 
 # [start-config-dict-torch]
