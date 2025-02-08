@@ -7,7 +7,7 @@ from dataclasses import MISSING
 
 import omni.isaac.lab.sim as sim_utils
 from omni.isaac.lab.assets import ArticulationCfg, AssetBaseCfg, DeformableObject, DeformableObjectCfg, RigidObjectCfg
-from omni.isaac.lab.envs import ManagerBasedRLEnvCfg
+from omni.isaac.lab.envs import CustomManagerBasedRLEnvCfg
 from omni.isaac.lab.managers import CurriculumTermCfg as CurrTerm
 from omni.isaac.lab.managers import EventTermCfg as EventTerm
 from omni.isaac.lab.managers import ObservationGroupCfg as ObsGroup
@@ -43,6 +43,8 @@ box_length = 0.6096
 box_width = 0.9144
 box_height = 0.3048
 thickness = 0.0010
+
+num_clutter_objects = 6
 
 @configclass
 class ObjectTableSceneCfg(InteractiveSceneCfg):
@@ -134,7 +136,6 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
     def __post_init__(self):
         """Initialize with a variable number of clutter objects."""
-        num_clutter_objects = 6
         for i in range(num_clutter_objects):
             setattr(self, f"clutter_object{i+1}", MISSING)
 
@@ -186,7 +187,6 @@ class ObservationsCfg:
             self.concatenate_terms = True
 
             """Initialize with a variable number of clutter objects."""
-            num_clutter_objects = 6
             for i in range(num_clutter_objects):
                 clutter_pos = ObsTerm(func=mdp.clutter_position_in_robot_root_frame, params={
                     "object_cfg": SceneEntityCfg(f"clutter_object{i+1}")
@@ -275,7 +275,7 @@ class CurriculumCfg:
 
 
 @configclass
-class LiftEnvCfg(ManagerBasedRLEnvCfg):
+class LiftEnvCfg(CustomManagerBasedRLEnvCfg):
     """Configuration for the lifting environment."""
 
     # Scene settings
@@ -295,6 +295,7 @@ class LiftEnvCfg(ManagerBasedRLEnvCfg):
         # general settings
         self.decimation = 2
         self.episode_length_s = 5.0
+        self.num_clutter_objects = num_clutter_objects
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
