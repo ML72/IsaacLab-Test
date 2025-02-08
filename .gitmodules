@@ -1,0 +1,3 @@
+[submodule "submodules/skrl"]
+	path = submodules/skrl
+	url = https://github.com/kaikwan/skrl-adv.git
