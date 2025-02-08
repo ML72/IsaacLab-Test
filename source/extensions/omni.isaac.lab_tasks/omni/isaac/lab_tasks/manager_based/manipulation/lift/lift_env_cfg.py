@@ -213,20 +213,6 @@ class EventCfg:
         },
     )
 
-    def __post_init__(self):
-        """Initialize with a variable number of clutter object reset events."""
-        num_clutter_objects = 6
-        for i in range(num_clutter_objects):
-            reset_clutter = EventTerm(
-                func=mdp.reset_root_state_uniform,
-                mode="reset",
-                params={
-                    "pose_range": {"x": (-0.1, 0.1), "y": (-0.2, 0.2), "z": (0.15, 0.2)},
-                    "velocity_range": {},
-                    "asset_cfg": SceneEntityCfg(f"clutter_object{i+1}", body_names=f"Clutter0{i}"),
-                },
-            )
-            setattr(self, f"reset_clutter{i+1}_position", reset_clutter)
 
 
 @configclass
