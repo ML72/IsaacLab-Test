@@ -47,7 +47,7 @@ gym.register(
 
 gym.register(
     id="Isaac-Lift-Cube-Franka-Custom-v0",
-    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    entry_point="omni.isaac.lab.envs:CustomManagerBasedRLEnv",
     kwargs={
         "env_cfg_entry_point": f"{__name__}.joint_pos_custom_env_cfg:FrankaCubeLiftCustomEnvCfg",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LiftCubePPORunnerCfg",

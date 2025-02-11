@@ -69,12 +69,13 @@ from datetime import datetime
 from packaging import version
 
 
-from omni.isaac.lab_tasks.skrl_custom.utils.runner.torch.runner import Runner as CustomRunner
+from skrl.utils.runner.torch.runner import Runner as CustomRunner
 from omni.isaac.lab.envs import (
     DirectMARLEnv,
     DirectMARLEnvCfg,
     DirectRLEnvCfg,
     ManagerBasedRLEnvCfg,
+    CustomManagerBasedRLEnv,
     multi_agent_to_single_agent,
 )
 from omni.isaac.lab.utils.dict import print_dict
@@ -90,7 +91,7 @@ agent_cfg_entry_point = "skrl_cfg_entry_point" if algorithm in ["ppo"] else f"sk
 
 
 @hydra_task_config(args_cli.task, agent_cfg_entry_point)
-def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: dict):
+def main(env_cfg: CustomManagerBasedRLEnv | ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: dict):
     """Train with skrl agent."""
     # override configurations with non-hydra CLI arguments
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
@@ -127,6 +128,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # set directory into agent config
     agent_cfg["agent"]["experiment"]["directory"] = log_root_path
     agent_cfg["agent"]["experiment"]["experiment_name"] = log_dir
+    agent_cfg["trainer"]["num_clutter_objects"] = env_cfg.num_clutter_objects
     # update log_dir
     log_dir = os.path.join(log_root_path, log_dir)
 
