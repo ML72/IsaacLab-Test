@@ -137,11 +137,11 @@ class FrankaCubeLiftCustomEnvCfg(LiftEnvCfg):
 
         # Spawn objects
         self.scene.clutter_object1 = define_objects([0.5, 0, 0], 0)
-        self.scene.clutter_object2 = define_objects([0.5, 0, 0], 1)
-        self.scene.clutter_object3 = define_objects([0.5, 0, 0], 2)
-        self.scene.clutter_object4 = define_objects([0.5, 0, 0], 3)
-        self.scene.clutter_object5 = define_objects([0.5, 0, 0], 4)
-        self.scene.clutter_object6 = define_objects([0.5, 0, 0], 5)
+        # self.scene.clutter_object2 = define_objects([0.5, 0, 0], 1)
+        # self.scene.clutter_object3 = define_objects([0.5, 0, 0], 2)
+        # self.scene.clutter_object4 = define_objects([0.5, 0, 0], 3)
+        # self.scene.clutter_object5 = define_objects([0.5, 0, 0], 4)
+        # self.scene.clutter_object6 = define_objects([0.5, 0, 0], 5)
 
         # Change some settings
         self.episode_length_s = 6.0

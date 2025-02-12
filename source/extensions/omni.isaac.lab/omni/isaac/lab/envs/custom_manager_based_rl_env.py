@@ -37,8 +37,8 @@ class CustomManagerBasedRLEnv(ManagerBasedRLEnv):
         Args:
             env_ids: List of environment ids which must be reset
         """
-        self.adversarial_reset(env_ids)
         super()._reset_idx(env_ids)
+        self.adversarial_reset(env_ids)
 
     def adversarial_reset(
         self, reset_env_ids: Sequence[int]

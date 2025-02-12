@@ -13,19 +13,71 @@ models:
     max_log_std: 2.0
     initial_log_std: 0.0
     network:
+      - name: features_extractor
+        input: STATES["rgb"]
+        layers: 
+          - conv2d: {in_channels: 3, out_channels: 64, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 64, out_channels: 128, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 128, out_channels: 256, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 256, out_channels: 512, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 512, out_channels: 512, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - flatten
+          - linear: [1024]
+          - linear: [512]
+        activations:
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
       - name: net
-        input: STATES
-        layers: [512, 256, 128, 64]
-        activations: elu
+        input: concatenate([features_extractor, STATES["joint_pos"]])
+        layers: 
+          - linear: [256]
+          - linear: [128]
+          - linear: [64]
+        activations:
+          - elu
+          - elu
+          - elu
     output: ACTIONS
   value:  # see deterministic_model parameters
     class: DeterministicMixin
     clip_actions: False
     network:
+      - name: features_extractor
+        input: STATES["rgb"]
+        layers: 
+          - conv2d: {in_channels: 3, out_channels: 64, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 64, out_channels: 128, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 128, out_channels: 256, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 256, out_channels: 512, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - conv2d: {in_channels: 512, out_channels: 512, kernel_size: 3, stride: [2, 2], padding: [1, 1]}
+          - flatten
+          - linear: [1024]
+          - linear: [512]
+        activations:
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
+          - relu
       - name: net
-        input: STATES
-        layers: [512, 256, 128, 64]
-        activations: elu
+        input: concatenate([features_extractor, STATES["joint_pos"]])
+        layers: 
+          - linear: [256]
+          - linear: [128]
+          - linear: [64]
+        activations:
+          - elu
+          - elu
+          - elu
     output: ONE
 
 
@@ -54,7 +106,7 @@ agent:
   value_preprocessor: RunningStandardScaler
   value_preprocessor_kwargs: null
   random_timesteps: 0
-  learning_starts: 40 # 10 zero actions + 24 rollouts
+  learning_starts: 0
   grad_norm_clip: 1.0
   ratio_clip: 0.2
   value_clip: 0.2
@@ -77,5 +129,5 @@ agent:
 trainer:
   class: SequentialTrainer
   timesteps: 100000
-  num_clutter_objects: 6
+  num_clutter_objects: 1
   environment_info: log
