@@ -914,13 +914,13 @@ def reset_nodal_state_uniform(
 def reset_scene_to_default(env: ManagerBasedEnv, env_ids: torch.Tensor):
     """Reset the scene to the default state specified in the scene configuration."""
     # rigid bodies
-    for rigid_object in env.scene.rigid_objects.values():
-        # obtain default and deal with the offset for env origins
-        default_root_state = rigid_object.data.default_root_state[env_ids].clone()
-        default_root_state[:, 0:3] += env.scene.env_origins[env_ids]
-        # set into the physics simulation
-        rigid_object.write_root_link_pose_to_sim(default_root_state[:, :7], env_ids=env_ids)
-        rigid_object.write_root_com_velocity_to_sim(default_root_state[:, 7:], env_ids=env_ids)
+    # for rigid_object in env.scene.rigid_objects.values():
+    #     # obtain default and deal with the offset for env origins
+    #     default_root_state = rigid_object.data.default_root_state[env_ids].clone()
+    #     default_root_state[:, 0:3] += env.scene.env_origins[env_ids]
+    #     # set into the physics simulation
+    #     rigid_object.write_root_link_pose_to_sim(default_root_state[:, :7], env_ids=env_ids)
+    #     rigid_object.write_root_com_velocity_to_sim(default_root_state[:, 7:], env_ids=env_ids)
     # articulations
     for articulation_asset in env.scene.articulations.values():
         # obtain default and deal with the offset for env origins

@@ -409,8 +409,8 @@ class InteractiveScene:
             deformable_object.reset(env_ids)
         for rigid_object in self._rigid_objects.values():
             rigid_object.reset(env_ids)
-        for rigid_object_collection in self._rigid_object_collections.values():
-            rigid_object_collection.reset(env_ids)
+        # for rigid_object_collection in self._rigid_object_collections.values():
+        #     rigid_object_collection.reset(env_ids)
         # -- sensors
         for sensor in self._sensors.values():
             sensor.reset(env_ids)

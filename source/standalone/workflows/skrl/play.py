@@ -135,7 +135,6 @@ def main():
     # configure and instantiate the skrl runner
     # https://skrl.readthedocs.io/en/latest/api/utils/runner.html
     experiment_cfg["trainer"]["close_environment_at_exit"] = False
-    experiment_cfg["trainer"]["num_clutter_objects"] = env_cfg.num_clutter_objects
     experiment_cfg["agent"]["experiment"]["write_interval"] = 0  # don't log to TensorBoard
     experiment_cfg["agent"]["experiment"]["checkpoint_interval"] = 0  # don't generate checkpoints
 
@@ -147,6 +146,8 @@ def main():
     runner.agent.set_running_mode("eval")
 
     # reset environment
+    for i in range(env.num_envs):
+        env._env.adversary_action[i] =  runner._trainer.adversary.sample()
     obs, _ = env.reset()
     timestep = 0
     # simulate environment
@@ -163,6 +164,12 @@ def main():
             if timestep == args_cli.video_length:
                 break
 
+        if terminated.any() or truncated.any():
+            with torch.no_grad():
+                # loop through all envs that need to be reset and update their adversary action
+                reset_env_ids = env.reset_buf.nonzero(as_tuple=False).squeeze(-1)
+                for i in reset_env_ids:
+                    env._env.adversary_action[i] = runner._trainer.adversary.sample()
     # close the simulator
     env.close()
 
