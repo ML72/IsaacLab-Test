@@ -149,6 +149,10 @@ def main():
     for i in range(env.num_envs):
         env._env.adversary_action[i] =  runner._trainer.adversary.sample()
     obs, _ = env.reset()
+
+    # for i in range(50):
+    #     env.step(torch.zeros(8).to(env.device) * env.num_envs)
+
     timestep = 0
     # simulate environment
     while simulation_app.is_running():
@@ -170,6 +174,10 @@ def main():
                 reset_env_ids = env.reset_buf.nonzero(as_tuple=False).squeeze(-1)
                 for i in reset_env_ids:
                     env._env.adversary_action[i] = runner._trainer.adversary.sample()
+            # for i in range(50):
+            #     env.step(torch.zeros(8).to(env.device) * env.num_envs)
+                
+
     # close the simulator
     env.close()
 
