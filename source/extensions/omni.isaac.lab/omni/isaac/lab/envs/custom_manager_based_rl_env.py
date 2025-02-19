@@ -42,19 +42,28 @@ class CustomManagerBasedRLEnv(ManagerBasedRLEnv):
 
     def adversarial_reset(
         self, reset_env_ids: Sequence[int]
-    ) -> tuple[VecEnvObs, dict]:
+    ):
         """Reset the environment.
 
         Returns:
             np.ndarray: The initial observation.
         """
-        positions = self.adversary_action[reset_env_ids]
-        curr_state = self.scene.get_state(False) # curr_state is full sim state
-        for i in range(self.num_clutter_objects):
-            pose = curr_state["rigid_object"][f"clutter_object{i+1}"]['root_pose'][reset_env_ids]
-            val1 = positions[:, i*3] * 0.1
-            val2 = positions[:, i*3+1] * 0.2
-            val3 = positions[:, i*3+2] * 0.025 + 0.15
-            pose[:, :3] += torch.stack([val1, val2, val3], dim=-1).to(pose.device)
-        self.scene.reset_to(curr_state, reset_env_ids)
+        adversary_pos = self.adversary_action[reset_env_ids]
+    
+        for asset_name, rigid_object in self.scene._rigid_objects.items():
+            if "clutter_object" not in asset_name:
+                continue
+            clutter_idx = int(asset_name.split("clutter_object")[-1]) - 1
+            clutter_obj_state = rigid_object.data.default_root_state[reset_env_ids].clone() # get states of only envs we want to reset
+            clutter_obj_state[:, 0:3] += self.scene.env_origins[reset_env_ids]
+            root_pose = clutter_obj_state[:, :7]
+            root_velocity = clutter_obj_state[:, 7:] * 0.0 # zero out the velocity
+            root_pose[:, :3] += torch.stack([adversary_pos[:, clutter_idx*3] * 0.05,
+                                             adversary_pos[:, clutter_idx*3+1] * 0.05,
+                                             adversary_pos[:, clutter_idx*3+2] * 0.025 + 0.2]
+                                             , dim=-1).to(root_pose.device)
+
+            rigid_object.write_root_link_pose_to_sim(root_pose, env_ids=reset_env_ids)
+            rigid_object.write_root_com_velocity_to_sim(root_velocity, env_ids=reset_env_ids)
+        self.scene.write_data_to_sim()
 

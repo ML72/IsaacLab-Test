@@ -9,6 +9,7 @@ class LinearNetwork(nn.Module):
         self.fc1 = nn.Linear(input_dim, hidden_dim1)
         self.fc2 = nn.Linear(hidden_dim1, hidden_dim2)
         self.fc3 = nn.Linear(hidden_dim2, num_positions * 3)
+        self.num_clutter_objects = num_positions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -22,5 +23,6 @@ class LinearNetwork(nn.Module):
         return x
     
     def sample(self):
-        input = torch.randn(size=(self.input_dim,))
-        return self.forward(input)
+        # input = torch.randn(size=(self.input_dim,))
+        # return self.forward(input)
+        return torch.randn(size=(self.num_clutter_objects * 3,)) * 2 - 1

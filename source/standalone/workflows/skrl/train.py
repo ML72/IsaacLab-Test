@@ -128,7 +128,6 @@ def main(env_cfg: CustomManagerBasedRLEnv | ManagerBasedRLEnvCfg | DirectRLEnvCf
     # set directory into agent config
     agent_cfg["agent"]["experiment"]["directory"] = log_root_path
     agent_cfg["agent"]["experiment"]["experiment_name"] = log_dir
-    agent_cfg["trainer"]["num_clutter_objects"] = env_cfg.num_clutter_objects
     # update log_dir
     log_dir = os.path.join(log_root_path, log_dir)
 
