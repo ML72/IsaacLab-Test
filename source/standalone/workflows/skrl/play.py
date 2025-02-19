@@ -70,10 +70,7 @@ if version.parse(skrl.__version__) < version.parse(SKRL_VERSION):
     )
     exit()
 
-if args_cli.ml_framework.startswith("torch"):
-    from skrl.utils.runner.torch import Runner
-elif args_cli.ml_framework.startswith("jax"):
-    from skrl.utils.runner.jax import Runner
+from skrl.utils.runner.torch.runner import Runner as CustomRunner
 
 from omni.isaac.lab.envs import DirectMARLEnv, multi_agent_to_single_agent
 from omni.isaac.lab.utils.dict import print_dict
@@ -140,7 +137,8 @@ def main():
     experiment_cfg["trainer"]["close_environment_at_exit"] = False
     experiment_cfg["agent"]["experiment"]["write_interval"] = 0  # don't log to TensorBoard
     experiment_cfg["agent"]["experiment"]["checkpoint_interval"] = 0  # don't generate checkpoints
-    runner = Runner(env, experiment_cfg)
+
+    runner = CustomRunner(env, experiment_cfg)
 
     print(f"[INFO] Loading model checkpoint from: {resume_path}")
     runner.agent.load(resume_path)
@@ -148,7 +146,13 @@ def main():
     runner.agent.set_running_mode("eval")
 
     # reset environment
+    for i in range(env.num_envs):
+        env._env.adversary_action[i] =  runner._trainer.adversary.sample()
     obs, _ = env.reset()
+
+    # for i in range(50):
+    #     env.step(torch.zeros(8).to(env.device) * env.num_envs)
+
     timestep = 0
     # simulate environment
     while simulation_app.is_running():
@@ -163,6 +167,16 @@ def main():
             # Exit the play loop after recording one video
             if timestep == args_cli.video_length:
                 break
+
+        if terminated.any() or truncated.any():
+            with torch.no_grad():
+                # loop through all envs that need to be reset and update their adversary action
+                reset_env_ids = env.reset_buf.nonzero(as_tuple=False).squeeze(-1)
+                for i in reset_env_ids:
+                    env._env.adversary_action[i] = runner._trainer.adversary.sample()
+            # for i in range(50):
+            #     env.step(torch.zeros(8).to(env.device) * env.num_envs)
+                
 
     # close the simulator
     env.close()

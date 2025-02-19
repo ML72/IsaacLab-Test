@@ -66,28 +66,16 @@ import os
 import random
 from datetime import datetime
 
-import skrl
 from packaging import version
 
-# check for minimum supported skrl version
-SKRL_VERSION = "1.3.0"
-if version.parse(skrl.__version__) < version.parse(SKRL_VERSION):
-    skrl.logger.error(
-        f"Unsupported skrl version: {skrl.__version__}. "
-        f"Install supported version using 'pip install skrl>={SKRL_VERSION}'"
-    )
-    exit()
 
-if args_cli.ml_framework.startswith("torch"):
-    from omni.isaac.lab_tasks.skrl_custom.utils.runner.torch import Runner
-elif args_cli.ml_framework.startswith("jax"):
-    from omni.isaac.lab_tasks.skrl_custom.utils.runner.jax import Runner
-
+from skrl.utils.runner.torch.runner import Runner as CustomRunner
 from omni.isaac.lab.envs import (
     DirectMARLEnv,
     DirectMARLEnvCfg,
     DirectRLEnvCfg,
     ManagerBasedRLEnvCfg,
+    CustomManagerBasedRLEnv,
     multi_agent_to_single_agent,
 )
 from omni.isaac.lab.utils.dict import print_dict
@@ -103,7 +91,7 @@ agent_cfg_entry_point = "skrl_cfg_entry_point" if algorithm in ["ppo"] else f"sk
 
 
 @hydra_task_config(args_cli.task, agent_cfg_entry_point)
-def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: dict):
+def main(env_cfg: CustomManagerBasedRLEnv | ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: dict):
     """Train with skrl agent."""
     # override configurations with non-hydra CLI arguments
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
@@ -173,7 +161,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # configure and instantiate the skrl runner
     # https://skrl.readthedocs.io/en/latest/api/utils/runner.html
-    runner = Runner(env, agent_cfg)
+    runner = CustomRunner(env, agent_cfg)
 
     # run training
     runner.run()
